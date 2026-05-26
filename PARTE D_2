@@ -1,0 +1,41 @@
+import numpy as np
+from scipy.interpolate import CubicSpline
+
+# Datos experimentales
+f = np.array([100, 120, 145, 170, 200, 235, 270, 310, 355, 405, 460, 520, 585, 655, 730, 810, 895, 985, 1080, 1180, 1290, 1410, 1540, 1680, 1830, 1990, 2160, 2340, 2530, 2730])
+Z = np.array([152.3, 149.1, 146.8, 144.9, 142.0, 139.5, 137.9, 136.1, 134.8, 133.6, 132.7, 131.9, 131.4, 131.1, 130.9, 131.0, 131.3, 131.9, 132.7, 133.8, 135.2, 136.9, 138.9, 141.1, 143.5, 146.1, 149.0, 152.2, 155.6, 159.2])
+Z_th = 150
+
+# Crear spline y su derivada
+cs = CubicSpline(f, Z, bc_type='not-a-knot')
+cs_d1 = cs.derivative(nu=1)
+
+# Función objetivo
+f_obj = lambda x: cs(x) - Z_th
+
+# --- MÉTODO 1: BISECCIÓN ---
+a, b = 2160, 2340
+iter_bis = 0
+print(f"{'Iter':<5} | {'a':<12} | {'b':<12} | {'c':<12} | {'F(c)':<12}")
+while (b - a)/2 > 1e-4 and iter_bis < 50:
+    iter_bis += 1
+    c = (a + b) / 2
+    print(f"{iter_bis:<5} | {a:<12.4f} | {b:<12.4f} | {c:<12.4f} | {f_obj(c):<12.4f}")
+    if f_obj(c) == 0: break
+    if f_obj(a) * f_obj(c) < 0: b = c
+    else: a = c
+print(f"=> Bisección finalizada en {iter_bis} iteraciones. Raíz: {(a+b)/2:.4f} Hz\n")
+
+# --- MÉTODO 2: NEWTON-RAPHSON ---
+f0 = 2250.0
+iter_newt = 0
+print(f"{'Iter':<5} | {'f_i':<12} | {'F(f_i)':<10} | {'F''(f_i)':<10} | {'f_{i+1}':<12}")
+while iter_newt < 50:
+    iter_newt += 1
+    f_val = f_obj(f0)
+    df_val = cs_d1(f0)
+    f1 = f0 - f_val/df_val
+    print(f"{iter_newt:<5} | {f0:<12.4f} | {f_val:<10.4f} | {df_val:<10.4f} | {f1:<12.4f}")
+    if abs(f1 - f0) < 1e-4: break
+    f0 = f1
+print(f"=> Newton-Raphson finalizado en {iter_newt} iteraciones. Raíz: {f1:.4f} Hz")

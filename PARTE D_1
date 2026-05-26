@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import CubicSpline
+from scipy.optimize import fsolve
+
+# Datos experimentales del laboratorio
+f = np.array([100, 120, 145, 170, 200, 235, 270, 310, 355, 405, 460, 520, 585, 655, 730, 810, 895, 985, 1080, 1180, 1290, 1410, 1540, 1680, 1830, 1990, 2160, 2340, 2530, 2730], dtype=float)
+Z = np.array([152.3, 149.1, 146.8, 144.9, 142.0, 139.5, 137.9, 136.1, 134.8, 133.6, 132.7, 131.9, 131.4, 131.1, 130.9, 131.0, 131.3, 131.9, 132.7, 133.8, 135.2, 136.9, 138.9, 141.1, 143.5, 146.1, 149.0, 152.2, 155.6, 159.2], dtype=float)
+
+# 1. Reconstrucción del Spline Cúbico (not-a-knot)
+cs = CubicSpline(f, Z, bc_type='not-a-knot')
+
+# 2. Definición de la función objetivo: |Z|(f) - Z_th = 0
+Z_th = 150.0
+def funcion_objetivo(freq):
+    return cs(freq) - Z_th
+
+# 3. Búsqueda de raíces usando estimaciones iniciales visuales basadas en los datos
+# Al inicio decae entre 100 y 120 Hz (pasa de 152.3 a 149.1)
+raiz_1 = float(fsolve(funcion_objetivo, x0=110)[0])
+
+# Al final vuelve a subir superando los 150 Ohm entre 2160 y 2340 Hz (pasa de 149.0 a 152.2)
+raiz_2 = float(fsolve(funcion_objetivo, x0=2200)[0])
+
+print("---------------------------------------------------------")
+print("          BÚSQUEDA DE RAÍCES ANALÍTICA (PARTE D)")
+print("---------------------------------------------------------")
+print(f"Raíz 1 (Límite inferior): {raiz_1:.4f} Hz")
+print(f"Raíz 2 (Límite superior): {raiz_2:.4f} Hz")
+print("---------------------------------------------------------")
+
+# 4. Gráfica de control para el informe
+f_fina = np.linspace(f.min(), f.max(), 1000)
+plt.figure(figsize=(10, 5))
+plt.plot(f_fina, cs(f_fina), color='blue', label='|Z|(f) Spline Cúbico')
+plt.axhline(Z_th, color='red', linestyle='--', label='Umbral Z_th = 150 Ohm')
+plt.scatter([raiz_1, raiz_2], [Z_th, Z_th], color='black', zorder=5, label='Raíces encontradas')
+
+plt.title('Parte D: Identificación de la Banda de Operación Segura')
+plt.xlabel('Frecuencia f (Hz)')
+plt.ylabel('Impedancia |Z| (Ohm)')
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.legend()
+plt.show()

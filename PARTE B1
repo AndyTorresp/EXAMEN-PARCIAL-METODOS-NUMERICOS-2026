@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Datos experimentales del laboratorio
+f = np.array([100, 120, 150, 170, 200, 240, 270, 310, 360, 410, 460, 520, 580, 655, 730, 810, 890, 990, 1080, 1190, 1290, 1410, 1540, 1690, 1840, 1990, 2160, 2340, 2530, 2730], dtype=float)
+Z = np.array([152.3, 149.1, 146.8, 144.9, 142.0, 139.5, 137.9, 136.0, 134.8, 133.6, 132.7, 131.9, 131.4, 131.1, 130.9, 131.0, 131.3, 131.9, 132.7, 133.8, 135.2, 136.9, 138.8, 141.1, 143.5, 146.1, 149.0, 152.2, 155.6, 159.2], dtype=float)
+
+# Eje de frecuencias continuas para suavizar las curvas (1000 puntos)
+f_continuo = np.linspace(f.min(), f.max(), 1000)
+
+# Ajustes polinómicos escalonados usando polyfit
+p5 = np.polyfit(f, Z, 5)
+p10 = np.polyfit(f, Z, 10)
+p15 = np.polyfit(f, Z, 15)
+p29 = np.polyfit(f, Z, 29) # Polinomio global de grado máximo (n-1)
+
+# Evaluación de las curvas
+Z_p5 = np.polyval(p5, f_continuo)
+Z_p10 = np.polyval(p10, f_continuo)
+Z_p15 = np.polyval(p15, f_continuo)
+Z_p29 = np.polyval(p29, f_continuo)
+
+# Configuración de la gráfica para el informe
+plt.figure(figsize=(11, 6))
+plt.scatter(f, Z, color='red', edgecolor='black', s=40, zorder=5, label='Datos medidos')
+
+# Graficar polinomios escalonados aceptables
+plt.plot(f_continuo, Z_p5, linestyle='-', linewidth=1.5, label='Polinomio Grado 5')
+plt.plot(f_continuo, Z_p10, linestyle='-', linewidth=1.5, label='Polinomio Grado 10')
+plt.plot(f_continuo, Z_p15, linestyle='-', linewidth=1.5, label='Polinomio Grado 15')
+
+# Graficar polinomio grado 29 para evidenciar el colapso en los extremos
+plt.plot(f_continuo, Z_p29, color='purple', linestyle='--', linewidth=2, label='Polinomio Grado 29 (Global)')
+
+plt.title('Comparación de Ajustes Polinómicos: Evidencia del Fenómeno de Runge')
+plt.xlabel('Frecuencia f (Hz)')
+plt.ylabel('Impedancia |Z| (Ohm)')
+
+# Acotamos el eje Y para que se noten las oscilaciones salvajes en los bordes
+plt.ylim(100, 180) 
+plt.grid(True, linestyle=':')
+plt.legend(loc='upper center')
+plt.show()

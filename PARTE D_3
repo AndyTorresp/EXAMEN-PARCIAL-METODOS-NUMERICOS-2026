@@ -1,0 +1,11 @@
+# Sensibilidad en la raíz f ≈ 2216.7 Hz
+f_raiz = 2216.7324
+
+# 1. Obtener la pendiente (dZ/df) evaluada en la raíz
+pendiente = cs.derivative(nu=1)(f_raiz)
+
+# 2. Sensibilidad es la inversa (df/dZ = 1 / (dZ/df))
+sensibilidad = 1 / pendiente
+
+print(f"Pendiente dZ/df en la raíz: {pendiente:.4f} Ohm/Hz")
+print(f"Sensibilidad df/dZ: {sensibilidad:.4f} Hz/Ohm")

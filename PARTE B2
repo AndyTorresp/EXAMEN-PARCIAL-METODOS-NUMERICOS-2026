@@ -1,0 +1,52 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import CubicSpline
+
+# --- 1. DATOS DE ENTRADA ---
+f = np.array([100, 120, 150, 170, 200, 240, 270, 310, 360, 410, 460, 520, 590, 
+              660, 740, 810, 900, 980, 1080, 1190, 1290, 1410, 1540, 1690, 
+              1830, 1990, 2160, 2340, 2530, 2740])
+
+Z = np.array([152.3, 149.1, 146.8, 144.9, 142.0, 139.5, 137.9, 136.1, 134.8, 
+              133.6, 132.7, 132.0, 131.4, 131.1, 131.0, 131.0, 131.3, 132.0, 
+              132.7, 133.8, 135.2, 136.9, 138.9, 141.1, 143.5, 146.1, 149.0, 
+              152.2, 155.6, 159.2])
+
+# --- 2. CÁLCULO DEL SPLINE CÚBICO NATURAL ---
+# Generamos muchos puntos intermedios para que la curva verde se vea suave
+f_curva = np.linspace(f.min(), f.max(), 500)
+
+# bc_type='natural' asegura que sea un Spline Cúbico Natural
+cs = CubicSpline(f, Z, bc_type='natural')
+Z_curva = cs(f_curva)
+
+# --- 3. CREACIÓN DE LA GRÁFICA ---
+plt.figure(figsize=(7.5, 4.5), facecolor='white')
+
+# Dibujar la línea de interpolación verde primero (para que quede atrás de los puntos)
+plt.plot(f_curva, Z_curva, color='green', linestyle='-', linewidth=1.5, label='Spline Cúbico Natural')
+
+# Dibujar los puntos medidos (círculos rojos con borde negro)
+plt.plot(f, Z, 'ro', markerfacecolor='red', markeredgecolor='black', markeredgewidth=0.8, markersize=5.5, label='Datos medidos')
+
+# --- 4. CONFIGURACIÓN DE EJES Y CUADRÍCULA ---
+plt.grid(True, linestyle='--', color='lightgray', alpha=0.5)
+
+# Límites de los ejes
+plt.xlim(0, 2900)
+plt.ylim(129, 161)
+
+# Marcas de los ejes (Ticks)
+plt.xticks(np.arange(0, 3000, 500))
+plt.yticks(np.arange(130, 165, 5))
+
+# --- 5. TEXTOS Y ETIQUETAS ---
+plt.title('Interpolación por Splines Cúbicos Naturales', fontsize=11, fontweight='bold', pad=10)
+plt.xlabel('Frecuencia f (Hz)', fontsize=10)
+plt.ylabel('Impedancia |Z| (Ohm)', fontsize=10)
+
+# Leyenda en la esquina superior izquierda
+plt.legend(loc='upper left', frameon=True)
+
+# Mostrar resultado
+plt.show()
